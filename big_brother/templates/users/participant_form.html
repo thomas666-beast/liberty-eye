@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">
+            {% if is_create %}Create New Participant{% else %}Edit Participant: {{ participant.nickname }}{% endif %}
+        </h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Basic Information Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-user-circle me-2"></i>Basic Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label fw-bold">Username*</label>
+                        {% render_field form.username class="form-control" placeholder="Enter username" %}
+                        {% if form.username.errors %}
+                        <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_nickname" class="form-label fw-bold">Nickname*</label>
+                        {% render_field form.nickname class="form-control" placeholder="Enter nickname" %}
+                        {% if form.nickname.errors %}
+                        <div class="text-danger small mt-1">{{ form.nickname.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_first_name" class="form-label fw-bold">First Name</label>
+                        {% render_field form.first_name class="form-control" placeholder="Enter first name" %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_last_name" class="form-label fw-bold">Last Name</label>
+                        {% render_field form.last_name class="form-control" placeholder="Enter last name" %}
+                    </div>
+                </div>
+            </div>
+
+            {% if is_create %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label fw-bold">Password*</label>
+                        {% render_field form.password class="form-control" placeholder="Enter password" %}
+                        {% if form.password.errors %}
+                        <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">{{ form.password.help_text }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_confirm_password" class="form-label fw-bold">Confirm Password*</label>
+                        {% render_field form.confirm_password class="form-control" placeholder="Confirm password" %}
+                        {% if form.confirm_password.errors %}
+                        <div class="text-danger small mt-1">{{ form.confirm_password.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label fw-bold">Password</label>
+                        {% render_field form.password class="form-control" placeholder="Leave empty to keep current password" %}
+                        {% if form.password.errors %}
+                        <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">{{ form.password.help_text }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_confirm_password" class="form-label fw-bold">Confirm Password</label>
+                        {% render_field form.confirm_password class="form-control" placeholder="Confirm password" %}
+                        {% if form.confirm_password.errors %}
+                        <div class="text-danger small mt-1">{{ form.confirm_password.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_avatar" class="form-label fw-bold">Avatar</label>
+                        {% render_field form.avatar class="form-control" %}
+                        {% if participant.avatar %}
+                        <div class="mt-2">
+                            <img src="{{ participant.avatar.url }}" alt="Current avatar" class="img-thumbnail" width="100">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status & Role Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-user-tag me-2"></i>Status & Role</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="id_status" class="form-label fw-bold">Status</label>
+                        {% render_field form.status class="form-select" %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="id_date_inactive" class="form-label fw-bold">Date Inactive</label>
+                        {% render_field form.date_inactive class="form-control" %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="id_role" class="form-label fw-bold">Role</label>
+                        {% render_field form.role class="form-select" %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="id_assigned_by" class="form-label fw-bold">Assigned By</label>
+                        {% render_field form.assigned_by class="form-select" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historical Information Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>Historical Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Activity</label>
+                        <input type="text" name="activity" class="form-control" placeholder="Enter current activity"
+                               value="{{ current_activity }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Activity Address</label>
+                        <input type="text" name="activity_address" class="form-control" placeholder="Enter activity address"
+                               value="{{ current_activity_address }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Job</label>
+                        <input type="text" name="job" class="form-control" placeholder="Enter job title"
+                               value="{{ current_job }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Job Address</label>
+                        <input type="text" name="job_address" class="form-control" placeholder="Enter job address"
+                               value="{{ current_job_address }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Address</label>
+                        <textarea name="address" class="form-control" rows="3" placeholder="Enter current address">{{ current_address }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phone Numbers Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-phone me-2"></i>Phone Numbers</h5>
+        </div>
+        <div class="card-body">
+            {{ phone_formset.management_form }}
+            <div id="phone-formset">
+                {% for form in phone_formset %}
+                <div class="row form-row mb-3 align-items-end">
+                    <div class="col-md-10">
+                        <label class="form-label fw-bold">Phone Number</label>
+                        {% render_field form.number class="form-control" placeholder="+1234567890" %}
+                        {% if form.number.errors %}
+                        <div class="text-danger small mt-1">{{ form.number.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2">
+                        {% if form.instance.pk %}
+                        <div class="form-check form-switch">
+                            {% render_field form.DELETE class="form-check-input" %}
+                            <label class="form-check-label small" for="{{ form.DELETE.id_for_label }}">Delete</label>
+                        </div>
+                        {% endif %}
+                        {{ form.id }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-outline-primary mt-2" id="add-phone">
+                <i class="fas fa-plus-circle me-1"></i> Add Another Phone
+            </button>
+        </div>
+    </div>
+
+    <!-- Email Addresses Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-purple text-white">
+            <h5 class="card-title mb-0"><i class="fas fa-envelope me-2"></i>Email Addresses</h5>
+        </div>
+        <div class="card-body">
+            {{ email_formset.management_form }}
+            <div id="email-formset">
+                {% for form in email_formset %}
+                <div class="row form-row mb-3 align-items-end">
+                    <div class="col-md-10">
+                        <label class="form-label fw-bold">Email Address</label>
+                        {% render_field form.email class="form-control" placeholder="email@example.com" %}
+                        {% if form.email.errors %}
+                        <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2">
+                        {% if form.instance.pk %}
+                        <div class="form-check form-switch">
+                            {% render_field form.DELETE class="form-check-input" %}
+                            <label class="form-check-label small" for="{{ form.DELETE.id_for_label }}">Delete</label>
+                        </div>
+                        {% endif %}
+                        {{ form.id }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-outline-primary mt-2" id="add-email">
+                <i class="fas fa-plus-circle me-1"></i> Add Another Email
+            </button>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{% if is_create %}{% url 'users:participant_list' %}{% else %}{% url 'users:participant_detail' participant.id %}{% endif %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Cancel
+        </a>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i> Save Changes
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bg-purple {
+        background-color: #6f42c1 !important;
+    }
+    .card-header {
+        border-bottom: none;
+    }
+    .form-label {
+        margin-bottom: 0.5rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    .form-check-input:checked {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    .btn-outline-primary:hover {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    .shadow-sm {
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Phone formset
+    document.getElementById('add-phone').addEventListener('click', function() {
+        const totalForms = document.getElementById('id_phone_set-TOTAL_FORMS');
+        const formNum = parseInt(totalForms.value);
+        const formRow = document.querySelector('#phone-formset .form-row:last-child');
+        const newRow = formRow.cloneNode(true);
+
+        // Update form indices
+        newRow.innerHTML = newRow.innerHTML.replace(/phone_set-\d+-/g, `phone_set-${formNum}-`);
+        newRow.innerHTML = newRow.innerHTML.replace(/id_phone_set-\d+-/g, `id_phone_set-${formNum}-`);
+
+        // Clear input values
+        const numberInput = newRow.querySelector('input[type="text"]');
+        if (numberInput) numberInput.value = '';
+
+        // Remove delete checkbox for new forms
+        const deleteCheckbox = newRow.querySelector('input[type="checkbox"]');
+        if (deleteCheckbox) {
+            deleteCheckbox.checked = false;
+            deleteCheckbox.style.display = 'none';
+            const deleteLabel = newRow.querySelector('label');
+            if (deleteLabel) deleteLabel.style.display = 'none';
+        }
+
+        // Clear error messages
+        const errorDiv = newRow.querySelector('.text-danger');
+        if (errorDiv) errorDiv.remove();
+
+        // Append new row
+        document.getElementById('phone-formset').appendChild(newRow);
+        totalForms.value = formNum + 1;
+    });
+
+    // Email formset
+    document.getElementById('add-email').addEventListener('click', function() {
+        const totalForms = document.getElementById('id_email_set-TOTAL_FORMS');
+        const formNum = parseInt(totalForms.value);
+        const formRow = document.querySelector('#email-formset .form-row:last-child');
+        const newRow = formRow.cloneNode(true);
+
+        // Update form indices
+        newRow.innerHTML = newRow.innerHTML.replace(/email_set-\d+-/g, `email_set-${formNum}-`);
+        newRow.innerHTML = newRow.innerHTML.replace(/id_email_set-\d+-/g, `id_email_set-${formNum}-`);
+
+        // Clear input values
+        const emailInput = newRow.querySelector('input[type="email"]');
+        if (emailInput) emailInput.value = '';
+
+        // Remove delete checkbox for new forms
+        const deleteCheckbox = newRow.querySelector('input[type="checkbox"]');
+        if (deleteCheckbox) {
+            deleteCheckbox.checked = false;
+            deleteCheckbox.style.display = 'none';
+            const deleteLabel = newRow.querySelector('label');
+            if (deleteLabel) deleteLabel.style.display = 'none';
+        }
+
+        // Clear error messages
+        const errorDiv = newRow.querySelector('.text-danger');
+        if (errorDiv) errorDiv.remove();
+
+        // Append new row
+        document.getElementById('email-formset').appendChild(newRow);
+        totalForms.value = formNum + 1;
+    });
+
+    // Show/hide date inactive based on status
+    const statusField = document.getElementById('id_status');
+    const dateInactiveField = document.getElementById('id_date_inactive');
+    const dateInactiveLabel = document.querySelector('label[for="id_date_inactive"]');
+
+    function toggleDateInactiveField() {
+        if (statusField.value === 'inactive') {
+            dateInactiveField.style.display = 'block';
+            dateInactiveLabel.style.display = 'block';
+            dateInactiveField.setAttribute('required', 'required');
+        } else {
+            dateInactiveField.style.display = 'none';
+            dateInactiveLabel.style.display = 'none';
+            dateInactiveField.removeAttribute('required');
+            dateInactiveField.value = '';
+        }
+    }
+
+    // Initial check
+    toggleDateInactiveField();
+
+    // Add event listener
+    statusField.addEventListener('change', toggleDateInactiveField);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="row">
+    <!-- Left Column - Profile Card -->
+    <div class="col-lg-4">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body text-center">
+                {% if participant.avatar %}
+                <img src="{{ participant.avatar.url }}" alt="Avatar" class="rounded-circle mb-3" width="150" height="150" style="object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                    <span class="text-white display-4">{{ participant.nickname|first|upper }}</span>
+                </div>
+                {% endif %}
+                <h3 class="card-title">{{ participant.nickname }}</h3>
+                <p class="text-muted mb-1">@{{ participant.username }}</p>
+
+                <div class="d-flex justify-content-center mb-3">
+                    <span class="badge bg-{% if participant.status == 'active' %}success{% else %}warning{% endif %} me-2">
+                        {{ participant.status|title }}
+                    </span>
+                    <span class="badge bg-info">
+                        {{ participant.role|title }}
+                    </span>
+                </div>
+
+                {% if participant.date_inactive %}
+                <p class="text-muted mb-3"><i class="fas fa-calendar-times me-2"></i>Inactive since: {{ participant.date_inactive }}</p>
+                {% endif %}
+
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="{% url 'users:participant_edit' participant.id %}" class="btn btn-primary me-2">
+                        <i class="fas fa-edit me-1"></i> Edit Profile
+                    </a>
+                    <a href="{% url 'users:participant_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </a>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <p class="small text-muted mb-0">Phones</p>
+                            <h4 class="mb-0">{{ participant.phones.count }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <p class="small text-muted mb-0">Emails</p>
+                            <h4 class="mb-0">{{ participant.emails.count }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div>
+                            <p class="small text-muted mb-0">History</p>
+                            <h4 class="mb-0">{{ participant.history.count }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information Card -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-address-card me-2"></i>Contact Information</h5>
+            </div>
+            <div class="card-body">
+                {% if participant.get_full_name %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p class="mb-0 fw-bold">Full Name</p>
+                        <p class="text-muted mb-0">{{ participant.get_full_name }}</p>
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+
+                {% if participant.phones.all %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p class="mb-1 fw-bold"><i class="fas fa-phone me-2 text-success"></i>Phone Numbers</p>
+                        {% for phone in participant.phones.all %}
+                        <p class="text-muted mb-1">{{ phone.number }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+
+                {% if participant.emails.all %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p class="mb-1 fw-bold"><i class="fas fa-envelope me-2 text-primary"></i>Email Addresses</p>
+                        {% for email in participant.emails.all %}
+                        <p class="text-muted mb-1">{{ email.email }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+
+                {% if participant.assigned_by %}
+                <div class="row">
+                    <div class="col-12">
+                        <p class="mb-0 fw-bold"><i class="fas fa-user-check me-2 text-info"></i>Assigned By</p>
+                        <p class="text-muted mb-0">{{ participant.assigned_by.nickname }} ({{ participant.assigned_by.username }})</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column - Details -->
+    <div class="col-lg-8">
+        <!-- Current Information Card -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>Current Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for record_type in record_types %}
+                    <div class="col-md-6 mb-3">
+                        <p class="mb-1 fw-bold">{{ record_type.name }}</p>
+                        {% with participant.history.all|first_record:record_type.value as current_record %}
+                        {% if current_record %}
+                        <p class="text-muted mb-0">{{ current_record.value }}</p>
+                        <small class="text-muted">Updated: {{ current_record.changed_at|date:"M d, Y" }}</small>
+                        {% else %}
+                        <p class="text-muted mb-0 fst-italic">Not specified</p>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- History Timeline Card -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>History Timeline</h5>
+                <span class="badge bg-dark">{{ participant.history.count }} entries</span>
+            </div>
+            <div class="card-body p-0">
+                {% if participant.history.all %}
+                <div class="timeline-wrapper">
+                    <div class="timeline">
+                        {% for record in participant.history.all %}
+                        <div class="timeline-item {% if forloop.first %}first{% endif %} {% if forloop.last %}last{% endif %}">
+                            <div class="timeline-marker">
+                                <i class="fas {{ record.record_type|record_icon }}"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0 timeline-title">{{ record.get_record_type_display }}</h6>
+                                        <span class="timeline-date">{{ record.changed_at|date:"M d, Y" }}</span>
+                                    </div>
+                                    <small class="text-muted">{{ record.changed_at|date:"h:i A" }}</small>
+                                </div>
+                                <div class="timeline-body">
+                                    <p class="mb-0">{{ record.value }}</p>
+                                </div>
+                                <div class="timeline-footer">
+                                    <small class="text-muted">Changed {{ record.changed_at|timesince }} ago</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No history records found</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add data-type attribute to timeline items for color coding
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    timelineItems.forEach(item => {
+        const icon = item.querySelector('.timeline-marker i');
+        if (icon) {
+            const classList = icon.classList;
+            let recordType = '';
+
+            if (classList.contains('fa-briefcase')) recordType = 'job';
+            else if (classList.contains('fa-building')) recordType = 'job_address';
+            else if (classList.contains('fa-running')) recordType = 'activity';
+            else if (classList.contains('fa-map-marker-alt')) recordType = 'activity_address';
+            else if (classList.contains('fa-home')) recordType = 'address';
+
+            if (recordType) {
+                item.setAttribute('data-type', recordType);
+            }
+        }
+
+        // Add click to expand functionality
+        item.addEventListener('click', function() {
+            this.classList.toggle('expanded');
+        });
+    });
+
+    // Filter functionality
+    const filterButtons = document.createElement('div');
+    filterButtons.className = 'btn-group btn-group-sm ms-auto';
+    filterButtons.innerHTML = `
+        <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="activity">Activity</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="job">Job</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="address">Address</button>
+    `;
+
+    document.querySelector('.card-header').appendChild(filterButtons);
+
+    // Add filter functionality
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+
+            // Update active button
+            document.querySelectorAll('[data-filter]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            // Filter timeline items
+            timelineItems.forEach(item => {
+                if (filter === 'all') {
+                    item.style.display = 'block';
+                } else {
+                    const type = item.getAttribute('data-type');
+                    if (type && type.includes(filter)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
