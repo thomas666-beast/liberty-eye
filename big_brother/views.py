@@ -205,13 +205,76 @@ def participant_detail(request, participant_id):
     })
 
 
+@login_required(login_url='users:login')
+@role_check(['admin', 'moderator'])
+def participant_create(request):
+    if request.method == 'POST':
+        form = ParticipantForm(request.POST, request.FILES)
+        phone_formset = PhoneFormSet(request.POST, prefix='phone_set')
+        email_formset = EmailFormSet(request.POST, prefix='email_set')
+
+        if form.is_valid() and phone_formset.is_valid() and email_formset.is_valid():
+            participant = form.save()
+            phone_formset.instance = participant
+            phone_formset.save()
+            email_formset.instance = participant
+            email_formset.save()
+
+            # Save historical records
+            historical_fields = {
+                'activity': request.POST.get('activity'),
+                'activity_address': request.POST.get('activity_address'),
+                'job': request.POST.get('job'),
+                'job_address': request.POST.get('job_address'),
+                'address': request.POST.get('address'),
+            }
+
+            for record_type, value in historical_fields.items():
+                if value:  # Only create record if value is provided
+                    HistoricalRecord.objects.create(
+                        participant=participant,
+                        record_type=record_type,
+                        value=value
+                    )
+
+            messages.success(request, f'Participant {participant.nickname} has been created successfully!')
+            return redirect('users:participant_list')
+        else:
+            # Debug information - you can remove this in production
+            print("Form errors:", form.errors)
+            print("Phone formset errors:", phone_formset.errors)
+            print("Email formset errors:", email_formset.errors)
+
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ParticipantForm()
+        phone_formset = PhoneFormSet(prefix='phone_set')
+        email_formset = EmailFormSet(prefix='email_set')
+
+    context = {
+        'form': form,
+        'phone_formset': phone_formset,
+        'email_formset': email_formset,
+        'is_create': True,
+        'current_activity': request.POST.get('activity', ''),
+        'current_activity_address': request.POST.get('activity_address', ''),
+        'current_job': request.POST.get('job', ''),
+        'current_job_address': request.POST.get('job_address', ''),
+        'current_address': request.POST.get('address', ''),
+    }
+
+    return render(request, 'users/participant_form.html', context)
+
+
+@login_required(login_url='users:login')
+@role_check(['admin', 'moderator'])
 def participant_edit(request, participant_id):
     participant = get_object_or_404(Participant, id=participant_id)
 
     if request.method == 'POST':
         form = ParticipantForm(request.POST, request.FILES, instance=participant)
-        phone_formset = PhoneFormSet(request.POST, instance=participant)
-        email_formset = EmailFormSet(request.POST, instance=participant)
+        phone_formset = PhoneFormSet(request.POST, instance=participant, prefix='phone_set')
+        email_formset = EmailFormSet(request.POST, instance=participant, prefix='email_set')
 
         if form.is_valid() and phone_formset.is_valid() and email_formset.is_valid():
             participant = form.save()
@@ -241,11 +304,16 @@ def participant_edit(request, participant_id):
             messages.success(request, f'Participant {participant.nickname} has been updated successfully!')
             return redirect('users:participant_detail', participant_id=participant_id)
         else:
+            # Debug information - you can remove this in production
+            print("Form errors:", form.errors)
+            print("Phone formset errors:", phone_formset.errors)
+            print("Email formset errors:", email_formset.errors)
+
             messages.error(request, 'Please correct the errors below.')
     else:
         form = ParticipantForm(instance=participant)
-        phone_formset = PhoneFormSet(instance=participant)
-        email_formset = EmailFormSet(instance=participant)
+        phone_formset = PhoneFormSet(instance=participant, prefix='phone_set')
+        email_formset = EmailFormSet(instance=participant, prefix='email_set')
 
     # Get current values for historical fields
     current_activity = participant.history.filter(record_type='activity').first()
@@ -264,62 +332,6 @@ def participant_edit(request, participant_id):
         'current_job': current_job.value if current_job else '',
         'current_job_address': current_job_address.value if current_job_address else '',
         'current_address': current_address.value if current_address else '',
-    }
-
-    return render(request, 'users/participant_form.html', context)
-
-
-@login_required(login_url='users:login')
-@role_check(['admin', 'moderator'])
-def participant_create(request):
-    if request.method == 'POST':
-        form = ParticipantForm(request.POST, request.FILES)
-        phone_formset = PhoneFormSet(request.POST)
-        email_formset = EmailFormSet(request.POST)
-
-        if form.is_valid() and phone_formset.is_valid() and email_formset.is_valid():
-            participant = form.save()
-            phone_formset.instance = participant
-            phone_formset.save()
-            email_formset.instance = participant
-            email_formset.save()
-
-            # Save historical records
-            historical_fields = {
-                'activity': request.POST.get('activity'),
-                'activity_address': request.POST.get('activity_address'),
-                'job': request.POST.get('job'),
-                'job_address': request.POST.get('job_address'),
-                'address': request.POST.get('address'),
-            }
-
-            for record_type, value in historical_fields.items():
-                if value:  # Only create record if value is provided
-                    HistoricalRecord.objects.create(
-                        participant=participant,
-                        record_type=record_type,
-                        value=value
-                    )
-
-            messages.success(request, f'Participant {participant.nickname} has been created successfully!')
-            return redirect('users:participant_list')
-        else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = ParticipantForm()
-        phone_formset = PhoneFormSet()
-        email_formset = EmailFormSet()
-
-    context = {
-        'form': form,
-        'phone_formset': phone_formset,
-        'email_formset': email_formset,
-        'is_create': True,
-        'current_activity': '',
-        'current_activity_address': '',
-        'current_job': '',
-        'current_job_address': '',
-        'current_address': '',
     }
 
     return render(request, 'users/participant_form.html', context)

@@ -1,7 +1,29 @@
 /* Base Styles */
+/* Ensure proper footer positioning */
+html, body {
+    height: 100%;
+}
+
 body {
-    background-color: #f8f9fa;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    footer .text-center {
+        padding: 1rem 0.5rem !important;
+    }
 }
 
 .card {
@@ -395,4 +417,70 @@ body {
     .btn-group .btn {
         padding: 0.25rem 0.5rem;
     }
+}
+
+/* Formset delete buttons */
+.remove-phone, .remove-email {
+    transition: all 0.3s ease;
+}
+
+.remove-phone:hover, .remove-email:hover {
+    transform: scale(1.1);
+}
+
+.phone-row, .email-row {
+    transition: all 0.3s ease;
+}
+
+.phone-row.deleting, .email-row.deleting {
+    opacity: 0;
+    transform: translateX(-100%);
+}
+
+/* Smooth animations for form operations */
+.form-row {
+    transition: opacity 0.3s ease;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Ensure proper spacing for form elements */
+.form-check.form-switch {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+    .remove-phone, .remove-email {
+        margin-top: 0.5rem;
+    }
+
+    .col-md-2 {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+.border-danger {
+    border-color: #dc3545 !important;
+}
+
+/* Add red outline to fields with errors */
+.form-control.is-invalid, .form-select.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Style for error lists */
+.text-danger small ul {
+    padding-left: 1rem;
+    margin-bottom: 0;
+}
+
+/* Highlight form rows with errors */
+.phone-row.border-danger, .email-row.border-danger {
+    background-color: rgba(220, 53, 69, 0.05);
 }

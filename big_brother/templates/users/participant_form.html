@@ -16,6 +16,33 @@
                 </div>
             {% endfor %}
         {% endif %}
+
+        {% if form.errors or phone_formset.errors or email_formset.errors %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Please correct the following errors:</strong>
+            <ul class="mb-0">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                {% for form in phone_formset %}
+                    {% for error in form.errors %}
+                        <li>Phone {{ forloop.parentloop.counter }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for form in email_formset %}
+                    {% for error in form.errors %}
+                        <li>Email {{ forloop.parentloop.counter }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -54,12 +81,18 @@
                     <div class="mb-3">
                         <label for="id_first_name" class="form-label fw-bold">First Name</label>
                         {% render_field form.first_name class="form-control" placeholder="Enter first name" %}
+                        {% if form.first_name.errors %}
+                        <div class="text-danger small mt-1">{{ form.first_name.errors }}</div>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="id_last_name" class="form-label fw-bold">Last Name</label>
                         {% render_field form.last_name class="form-control" placeholder="Enter last name" %}
+                        {% if form.last_name.errors %}
+                        <div class="text-danger small mt-1">{{ form.last_name.errors }}</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -115,6 +148,9 @@
                     <div class="mb-3">
                         <label for="id_avatar" class="form-label fw-bold">Avatar</label>
                         {% render_field form.avatar class="form-control" %}
+                        {% if form.avatar.errors %}
+                        <div class="text-danger small mt-1">{{ form.avatar.errors }}</div>
+                        {% endif %}
                         {% if participant.avatar %}
                         <div class="mt-2">
                             <img src="{{ participant.avatar.url }}" alt="Current avatar" class="img-thumbnail" width="100">
@@ -137,18 +173,27 @@
                     <div class="mb-3">
                         <label for="id_status" class="form-label fw-bold">Status</label>
                         {% render_field form.status class="form-select" %}
+                        {% if form.status.errors %}
+                        <div class="text-danger small mt-1">{{ form.status.errors }}</div>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label for="id_date_inactive" class="form-label fw-bold">Date Inactive</label>
                         {% render_field form.date_inactive class="form-control" %}
+                        {% if form.date_inactive.errors %}
+                        <div class="text-danger small mt-1">{{ form.date_inactive.errors }}</div>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label for="id_role" class="form-label fw-bold">Role</label>
                         {% render_field form.role class="form-select" %}
+                        {% if form.role.errors %}
+                        <div class="text-danger small mt-1">{{ form.role.errors }}</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -158,6 +203,9 @@
                     <div class="mb-3">
                         <label for="id_assigned_by" class="form-label fw-bold">Assigned By</label>
                         {% render_field form.assigned_by class="form-select" %}
+                        {% if form.assigned_by.errors %}
+                        <div class="text-danger small mt-1">{{ form.assigned_by.errors }}</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -224,21 +272,27 @@
             {{ phone_formset.management_form }}
             <div id="phone-formset">
                 {% for form in phone_formset %}
-                <div class="row form-row mb-3 align-items-end">
+                <div class="row form-row mb-3 align-items-end phone-row {% if form.errors %}border border-danger rounded p-2{% endif %}">
                     <div class="col-md-10">
                         <label class="form-label fw-bold">Phone Number</label>
-                        {% render_field form.number class="form-control" placeholder="+1234567890" %}
+                        {% render_field form.number class="form-control phone-input" placeholder="+1234567890" %}
                         {% if form.number.errors %}
                         <div class="text-danger small mt-1">{{ form.number.errors }}</div>
+                        {% endif %}
+                        {% if form.non_field_errors %}
+                        <div class="text-danger small mt-1">{{ form.non_field_errors }}</div>
                         {% endif %}
                     </div>
                     <div class="col-md-2">
                         {% if form.instance.pk %}
-                        <div class="form-check form-switch">
+                        <div class="form-check form-switch mb-2">
                             {% render_field form.DELETE class="form-check-input" %}
                             <label class="form-check-label small" for="{{ form.DELETE.id_for_label }}">Delete</label>
                         </div>
                         {% endif %}
+                        <button type="button" class="btn btn-danger btn-sm remove-phone" {% if forloop.first and phone_formset.total_form_count == 1 %}style="display: none;"{% endif %}>
+                            <i class="fas fa-trash"></i>
+                        </button>
                         {{ form.id }}
                     </div>
                 </div>
@@ -259,21 +313,27 @@
             {{ email_formset.management_form }}
             <div id="email-formset">
                 {% for form in email_formset %}
-                <div class="row form-row mb-3 align-items-end">
+                <div class="row form-row mb-3 align-items-end email-row {% if form.errors %}border border-danger rounded p-2{% endif %}">
                     <div class="col-md-10">
                         <label class="form-label fw-bold">Email Address</label>
-                        {% render_field form.email class="form-control" placeholder="email@example.com" %}
+                        {% render_field form.email class="form-control email-input" placeholder="email@example.com" %}
                         {% if form.email.errors %}
                         <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                        {% endif %}
+                        {% if form.non_field_errors %}
+                        <div class="text-danger small mt-1">{{ form.non_field_errors }}</div>
                         {% endif %}
                     </div>
                     <div class="col-md-2">
                         {% if form.instance.pk %}
-                        <div class="form-check form-switch">
+                        <div class="form-check form-switch mb-2">
                             {% render_field form.DELETE class="form-check-input" %}
                             <label class="form-check-label small" for="{{ form.DELETE.id_for_label }}">Delete</label>
                         </div>
                         {% endif %}
+                        <button type="button" class="btn btn-danger btn-sm remove-email" {% if forloop.first and email_formset.total_form_count == 1 %}style="display: none;"{% endif %}>
+                            <i class="fas fa-trash"></i>
+                        </button>
                         {{ form.id }}
                     </div>
                 </div>
@@ -297,127 +357,289 @@
 </form>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-    .bg-purple {
-        background-color: #6f42c1 !important;
-    }
-    .card-header {
-        border-bottom: none;
-    }
-    .form-label {
-        margin-bottom: 0.5rem;
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: #4e73df;
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-    }
-    .form-check-input:checked {
-        background-color: #4e73df;
-        border-color: #4e73df;
-    }
-    .btn-outline-primary:hover {
-        background-color: #4e73df;
-        border-color: #4e73df;
-    }
-    .shadow-sm {
-        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
-    }
-</style>
-{% endblock %}
-
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
+   // Add error classes to form fields
+    {% for field in form %}
+        {% if field.errors %}
+            document.getElementById('id_{{ field.name }}').classList.add('is-invalid');
+        {% endif %}
+    {% endfor %}
+
+    // Add error classes to formset fields
+    {% for form in phone_formset %}
+        {% for field in form %}
+            {% if field.errors %}
+                document.getElementById('id_{{ field.name }}').classList.add('is-invalid');
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+
+    {% for form in email_formset %}
+        {% for field in form %}
+            {% if field.errors %}
+                document.getElementById('id_{{ field.name }}').classList.add('is-invalid');
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+
     // Phone formset
-    document.getElementById('add-phone').addEventListener('click', function() {
-        const totalForms = document.getElementById('id_phone_set-TOTAL_FORMS');
-        const formNum = parseInt(totalForms.value);
-        const formRow = document.querySelector('#phone-formset .form-row:last-child');
-        const newRow = formRow.cloneNode(true);
+    const addPhoneButton = document.getElementById('add-phone');
+    if (addPhoneButton) {
+        addPhoneButton.addEventListener('click', function() {
+            // Create the management form if it doesn't exist
+            let totalForms = document.getElementById('phone_set-TOTAL_FORMS');
+            if (!totalForms) {
+                totalForms = document.createElement('input');
+                totalForms.type = 'hidden';
+                totalForms.name = 'phone_set-TOTAL_FORMS';
+                totalForms.id = 'phone_set-TOTAL_FORMS';
+                totalForms.value = '0';
+                document.querySelector('form').appendChild(totalForms);
+            }
 
-        // Update form indices
-        newRow.innerHTML = newRow.innerHTML.replace(/phone_set-\d+-/g, `phone_set-${formNum}-`);
-        newRow.innerHTML = newRow.innerHTML.replace(/id_phone_set-\d+-/g, `id_phone_set-${formNum}-`);
+            const formNum = parseInt(totalForms.value);
+            const formRows = document.querySelectorAll('#phone-formset .phone-row');
 
-        // Clear input values
-        const numberInput = newRow.querySelector('input[type="text"]');
-        if (numberInput) numberInput.value = '';
+            if (formRows.length === 0) return;
 
-        // Remove delete checkbox for new forms
-        const deleteCheckbox = newRow.querySelector('input[type="checkbox"]');
-        if (deleteCheckbox) {
-            deleteCheckbox.checked = false;
-            deleteCheckbox.style.display = 'none';
-            const deleteLabel = newRow.querySelector('label');
-            if (deleteLabel) deleteLabel.style.display = 'none';
-        }
+            const lastFormRow = formRows[formRows.length - 1];
+            const newRow = lastFormRow.cloneNode(true);
 
-        // Clear error messages
-        const errorDiv = newRow.querySelector('.text-danger');
-        if (errorDiv) errorDiv.remove();
+            // Update form indices
+            newRow.innerHTML = newRow.innerHTML.replace(/phone_set-(\d+)-/g, `phone_set-${formNum}-`);
 
-        // Append new row
-        document.getElementById('phone-formset').appendChild(newRow);
-        totalForms.value = formNum + 1;
-    });
+            // Clear input values
+            const numberInput = newRow.querySelector('.phone-input');
+            if (numberInput) numberInput.value = '';
+
+            // Show delete button for new rows
+            const deleteButton = newRow.querySelector('.remove-phone');
+            if (deleteButton) {
+                deleteButton.style.display = 'block';
+                deleteButton.addEventListener('click', function() {
+                    newRow.remove();
+                    updatePhoneFormIndices();
+                });
+            }
+
+            // Hide delete checkbox for new forms
+            const deleteCheckbox = newRow.querySelector('input[name$="-DELETE"]');
+            if (deleteCheckbox) {
+                deleteCheckbox.style.display = 'none';
+                const deleteLabel = newRow.querySelector('label[for="' + deleteCheckbox.id + '"]');
+                if (deleteLabel) deleteLabel.style.display = 'none';
+            }
+
+            // Clear ID field for new forms
+            const idField = newRow.querySelector('input[name$="-id"]');
+            if (idField) idField.value = '';
+
+            // Clear error messages
+            const errorDiv = newRow.querySelector('.text-danger');
+            if (errorDiv) errorDiv.remove();
+
+            // Append new row
+            document.getElementById('phone-formset').appendChild(newRow);
+            totalForms.value = formNum + 1;
+
+            // Add event listener to the new delete button
+            newRow.querySelector('.remove-phone').addEventListener('click', function() {
+                newRow.remove();
+                updatePhoneFormIndices();
+            });
+        });
+    }
 
     // Email formset
-    document.getElementById('add-email').addEventListener('click', function() {
-        const totalForms = document.getElementById('id_email_set-TOTAL_FORMS');
-        const formNum = parseInt(totalForms.value);
-        const formRow = document.querySelector('#email-formset .form-row:last-child');
-        const newRow = formRow.cloneNode(true);
+    const addEmailButton = document.getElementById('add-email');
+    if (addEmailButton) {
+        addEmailButton.addEventListener('click', function() {
+            // Create the management form if it doesn't exist
+            let totalForms = document.getElementById('email_set-TOTAL_FORMS');
+            if (!totalForms) {
+                totalForms = document.createElement('input');
+                totalForms.type = 'hidden';
+                totalForms.name = 'email_set-TOTAL_FORMS';
+                totalForms.id = 'email_set-TOTAL_FORMS';
+                totalForms.value = '0';
+                document.querySelector('form').appendChild(totalForms);
+            }
 
-        // Update form indices
-        newRow.innerHTML = newRow.innerHTML.replace(/email_set-\d+-/g, `email_set-${formNum}-`);
-        newRow.innerHTML = newRow.innerHTML.replace(/id_email_set-\d+-/g, `id_email_set-${formNum}-`);
+            const formNum = parseInt(totalForms.value);
+            const formRows = document.querySelectorAll('#email-formset .email-row');
 
-        // Clear input values
-        const emailInput = newRow.querySelector('input[type="email"]');
-        if (emailInput) emailInput.value = '';
+            if (formRows.length === 0) return;
 
-        // Remove delete checkbox for new forms
-        const deleteCheckbox = newRow.querySelector('input[type="checkbox"]');
-        if (deleteCheckbox) {
-            deleteCheckbox.checked = false;
-            deleteCheckbox.style.display = 'none';
-            const deleteLabel = newRow.querySelector('label');
-            if (deleteLabel) deleteLabel.style.display = 'none';
+            const lastFormRow = formRows[formRows.length - 1];
+            const newRow = lastFormRow.cloneNode(true);
+
+            // Update form indices
+            newRow.innerHTML = newRow.innerHTML.replace(/email_set-(\d+)-/g, `email_set-${formNum}-`);
+
+            // Clear input values
+            const emailInput = newRow.querySelector('.email-input');
+            if (emailInput) emailInput.value = '';
+
+            // Show delete button for new rows
+            const deleteButton = newRow.querySelector('.remove-email');
+            if (deleteButton) {
+                deleteButton.style.display = 'block';
+                deleteButton.addEventListener('click', function() {
+                    newRow.remove();
+                    updateEmailFormIndices();
+                });
+            }
+
+            // Hide delete checkbox for new forms
+            const deleteCheckbox = newRow.querySelector('input[name$="-DELETE"]');
+            if (deleteCheckbox) {
+                deleteCheckbox.style.display = 'none';
+                const deleteLabel = newRow.querySelector('label[for="' + deleteCheckbox.id + '"]');
+                if (deleteLabel) deleteLabel.style.display = 'none';
+            }
+
+            // Clear ID field for new forms
+            const idField = newRow.querySelector('input[name$="-id"]');
+            if (idField) idField.value = '';
+
+            // Clear error messages
+            const errorDiv = newRow.querySelector('.text-danger');
+            if (errorDiv) errorDiv.remove();
+
+            // Append new row
+            document.getElementById('email-formset').appendChild(newRow);
+            totalForms.value = formNum + 1;
+
+            // Add event listener to the new delete button
+            newRow.querySelector('.remove-email').addEventListener('click', function() {
+                newRow.remove();
+                updateEmailFormIndices();
+            });
+        });
+    }
+
+    // Function to update phone form indices after deletion
+    function updatePhoneFormIndices() {
+        const formRows = document.querySelectorAll('#phone-formset .phone-row');
+        let totalForms = document.getElementById('phone_set-TOTAL_FORMS');
+
+        if (!totalForms) {
+            totalForms = document.createElement('input');
+            totalForms.type = 'hidden';
+            totalForms.name = 'phone_set-TOTAL_FORMS';
+            totalForms.id = 'phone_set-TOTAL_FORMS';
+            totalForms.value = formRows.length;
+            document.querySelector('form').appendChild(totalForms);
+        } else {
+            totalForms.value = formRows.length;
         }
 
-        // Clear error messages
-        const errorDiv = newRow.querySelector('.text-danger');
-        if (errorDiv) errorDiv.remove();
+        formRows.forEach((row, index) => {
+            row.querySelectorAll('[name], [id], [for]').forEach(element => {
+                if (element.name) {
+                    element.name = element.name.replace(/phone_set-(\d+)-/, `phone_set-${index}-`);
+                }
+                if (element.id) {
+                    element.id = element.id.replace(/id_phone_set_(\d+)_/, `id_phone_set_${index}_`);
+                }
+                if (element.htmlFor) {
+                    element.htmlFor = element.htmlFor.replace(/id_phone_set_(\d+)_/, `id_phone_set_${index}_`);
+                }
+            });
 
-        // Append new row
-        document.getElementById('email-formset').appendChild(newRow);
-        totalForms.value = formNum + 1;
+            // Show/hide delete buttons based on row count
+            const deleteButton = row.querySelector('.remove-phone');
+            if (deleteButton) {
+                deleteButton.style.display = formRows.length > 1 ? 'block' : 'none';
+            }
+        });
+    }
+
+    // Function to update email form indices after deletion
+    function updateEmailFormIndices() {
+        const formRows = document.querySelectorAll('#email-formset .email-row');
+        let totalForms = document.getElementById('email_set-TOTAL_FORMS');
+
+        if (!totalForms) {
+            totalForms = document.createElement('input');
+            totalForms.type = 'hidden';
+            totalForms.name = 'email_set-TOTAL_FORMS';
+            totalForms.id = 'email_set-TOTAL_FORMS';
+            totalForms.value = formRows.length;
+            document.querySelector('form').appendChild(totalForms);
+        } else {
+            totalForms.value = formRows.length;
+        }
+
+        formRows.forEach((row, index) => {
+            row.querySelectorAll('[name], [id], [for]').forEach(element => {
+                if (element.name) {
+                    element.name = element.name.replace(/email_set-(\d+)-/, `email_set-${index}-`);
+                }
+                if (element.id) {
+                    element.id = element.id.replace(/id_email_set_(\d+)_/, `id_email_set_${index}_`);
+                }
+                if (element.htmlFor) {
+                    element.htmlFor = element.htmlFor.replace(/id_email_set_(\d+)_/, `id_email_set_${index}_`);
+                }
+            });
+
+            // Show/hide delete buttons based on row count
+            const deleteButton = row.querySelector('.remove-email');
+            if (deleteButton) {
+                deleteButton.style.display = formRows.length > 1 ? 'block' : 'none';
+            }
+        });
+    }
+
+    // Add event listeners to existing delete buttons
+    document.querySelectorAll('.remove-phone').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('.phone-row');
+            row.remove();
+            updatePhoneFormIndices();
+        });
     });
+
+    document.querySelectorAll('.remove-email').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('.email-row');
+            row.remove();
+            updateEmailFormIndices();
+        });
+    });
+
+    // Initialize form indices
+    updatePhoneFormIndices();
+    updateEmailFormIndices();
 
     // Show/hide date inactive based on status
     const statusField = document.getElementById('id_status');
     const dateInactiveField = document.getElementById('id_date_inactive');
-    const dateInactiveLabel = document.querySelector('label[for="id_date_inactive"]');
 
-    function toggleDateInactiveField() {
-        if (statusField.value === 'inactive') {
-            dateInactiveField.style.display = 'block';
-            dateInactiveLabel.style.display = 'block';
-            dateInactiveField.setAttribute('required', 'required');
-        } else {
-            dateInactiveField.style.display = 'none';
-            dateInactiveLabel.style.display = 'none';
-            dateInactiveField.removeAttribute('required');
-            dateInactiveField.value = '';
+    if (statusField && dateInactiveField) {
+        const dateInactiveContainer = dateInactiveField.closest('.mb-3');
+
+        function toggleDateInactiveField() {
+            if (statusField.value === 'inactive') {
+                dateInactiveContainer.style.display = 'block';
+                dateInactiveField.setAttribute('required', 'required');
+            } else {
+                dateInactiveContainer.style.display = 'none';
+                dateInactiveField.removeAttribute('required');
+                dateInactiveField.value = '';
+            }
         }
+
+        // Initial check
+        toggleDateInactiveField();
+
+        // Add event listener
+        statusField.addEventListener('change', toggleDateInactiveField);
     }
-
-    // Initial check
-    toggleDateInactiveField();
-
-    // Add event listener
-    statusField.addEventListener('change', toggleDateInactiveField);
 });
+
 </script>
 {% endblock %}
