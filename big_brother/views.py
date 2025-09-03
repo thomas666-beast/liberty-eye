@@ -91,8 +91,7 @@ def dashboard(request):
 
 def participant_list(request):
     # Get all participants
-    participants = Participant.objects.all()
-
+    participants = Participant.objects.all().order_by('-updated_at')
     # Get all users who can assign participants (for the assigned_by filter)
     assigners = Participant.objects.filter(role__in=['admin', 'moderator']).distinct()
 
@@ -238,7 +237,7 @@ def participant_create(request):
                     )
 
             messages.success(request, f'Participant {participant.nickname} has been created successfully!')
-            return redirect('users:participant_list')
+            return redirect('users:participant_create')
         else:
             # Debug information - you can remove this in production
             print("Form errors:", form.errors)
@@ -302,6 +301,7 @@ def participant_edit(request, participant_id):
                         )
 
             messages.success(request, f'Participant {participant.nickname} has been updated successfully!')
+
             return redirect('users:participant_detail', participant_id=participant_id)
         else:
             # Debug information - you can remove this in production

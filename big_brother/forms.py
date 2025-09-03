@@ -29,10 +29,13 @@ class ParticipantForm(forms.ModelForm):
         # Limit assigned_by choices to admins and moderators
         self.fields['assigned_by'].queryset = Participant.objects.filter(role__in=['admin', 'moderator'])
 
-        # Make password not required for existing participants
+        # Make password not required for existing participants and clear the value
         if self.instance and self.instance.pk:
             self.fields['password'].required = False
             self.fields['confirm_password'].required = False
+            # Clear the password field values for existing instances
+            self.fields['password'].initial = ''
+            self.fields['confirm_password'].initial = ''
         else:
             self.fields['password'].required = True
             self.fields['confirm_password'].required = True
