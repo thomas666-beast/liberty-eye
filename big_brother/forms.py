@@ -18,8 +18,8 @@ class ParticipantForm(forms.ModelForm):
 
     class Meta:
         model = Participant
-        fields = ['username', 'password', 'nickname', 'first_name', 'last_name', 'avatar', 'status', 'date_inactive',
-                  'role', 'assigned_by']
+        fields = ['number_id', 'username', 'password', 'nickname', 'first_name', 'last_name', 'avatar', 'status', 'date_inactive',
+                  'role', 'assigned_by', 'description']
         widgets = {
             'date_inactive': forms.DateInput(attrs={'type': 'date'}),
         }

@@ -84,6 +84,16 @@
                 <h5 class="card-title mb-0"><i class="fas fa-address-card me-2"></i>Contact Information</h5>
             </div>
             <div class="card-body">
+                {% if participant.number_id %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p class="mb-0 fw-bold">Number ID</p>
+                        <p class="text-muted mb-0">{{ participant.number_id }}</p>
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+
                 {% if participant.get_full_name %}
                 <div class="row mb-3">
                     <div class="col-12">
@@ -140,18 +150,22 @@
             <div class="card-body">
                 <div class="row">
                     {% for record_type in record_types %}
-                    <div class="col-md-6 mb-3">
-                        <p class="mb-1 fw-bold">{{ record_type.name }}</p>
-                        {% with participant.history.all|first_record:record_type.value as current_record %}
-                        {% if current_record %}
-                        <p class="text-muted mb-0">{{ current_record.value }}</p>
-                        <small class="text-muted">Updated: {{ current_record.changed_at|date:"M d, Y" }}</small>
-                        {% else %}
-                        <p class="text-muted mb-0 fst-italic">Not specified</p>
-                        {% endif %}
-                        {% endwith %}
-                    </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="mb-1 fw-bold">{{ record_type.name }}</p>
+                            {% with participant.history.all|first_record:record_type.value as current_record %}
+                                {% if current_record %}
+                                    <p class="text-muted mb-0">{{ current_record.value }}</p>
+                                    <small class="text-muted">Updated: {{ current_record.changed_at|date:"M d, Y" }}</small>
+                                {% else %}
+                                    <p class="text-muted mb-0 fst-italic">Not specified</p>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
                     {% endfor %}
+                    <div class="col-md-6 mb-3">
+                        <p class="mb-1 fw-bold">Description</p>
+                        <p class="text-muted mb-0">{{ participant.description }}</p>
+                    </div>
                 </div>
             </div>
         </div>

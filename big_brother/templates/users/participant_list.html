@@ -3,7 +3,6 @@
 
 {% block title %} Participants {% endblock %}
 
-
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Participants</h1>
@@ -175,64 +174,65 @@
 
     <div class="card-body">
         {% if participants %}
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>Avatar</th>
-                        <th>Username</th>
-                        <th>Nickname</th>
-                        <th>Full Name</th>
-                        <th>Status</th>
-                        <th>Role</th>
-                        <th>Assigned By</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for participant in participants %}
-                    <tr>
-                        <td>
-                            {% if participant.avatar %}
-                            <img src="{{ participant.avatar.url }}" alt="Avatar" class="rounded-circle" width="40" height="40">
-                            {% else %}
-                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                <span class="text-white">{{ participant.nickname|first|upper }}</span>
+        <!-- Grid layout for participants -->
+        <div class="row">
+            {% for participant in participants %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card participant-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                {% if participant.avatar %}
+                                <img src="{{ participant.avatar.url }}" alt="Avatar" class="rounded-circle" width="50" height="50">
+                                {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <span class="text-white fw-bold">{{ participant.nickname|first|upper }}</span>
+                                </div>
+                                {% endif %}
                             </div>
-                            {% endif %}
-                        </td>
-                        <td>{{ participant.username }}</td>
-                        <td>{{ participant.nickname }}</td>
-                        <td>{{ participant.get_full_name }}</td>
-                        <td>
-                            <span class="badge bg-{% if participant.status == 'active' %}success{% else %}warning{% endif %}">
-                                {{ participant.status|title }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge bg-info">{{ participant.role|title }}</span>
-                        </td>
-                        <td>
-                            {% if participant.assigned_by %}
-                            {{ participant.assigned_by.nickname }}
-                            {% else %}
-                            <span class="text-muted">Not assigned</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'users:participant_detail' participant.id %}" class="btn btn-info" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{% url 'users:participant_edit' participant.id %}" class="btn btn-warning" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                            <div>
+                                <h5 class="card-title mb-0">{{ participant.nickname }}</h5>
+                                <p class="text-muted mb-0">@{{ participant.username }}</p>
                             </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </div>
+
+                        <div class="participant-details">
+                            <div class="mb-2">
+                                <strong>Full Name:</strong> {{ participant.get_full_name }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>Status:</strong>
+                                <span class="badge bg-{% if participant.status == 'active' %}success{% else %}warning{% endif %} ms-1">
+                                    {{ participant.status|title }}
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Role:</strong>
+                                <span class="badge bg-info ms-1">{{ participant.role|title }}</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Assigned By:</strong>
+                                {% if participant.assigned_by %}
+                                {{ participant.assigned_by.nickname }}
+                                {% else %}
+                                <span class="text-muted">Not assigned</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'users:participant_detail' participant.id %}" class="btn btn-sm btn-info me-2" title="View">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="{% url 'users:participant_edit' participant.id %}" class="btn btn-sm btn-warning" title="Edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
 
         <!-- Pagination -->
@@ -326,4 +326,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<style>
+.participant-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.participant-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.participant-details {
+    font-size: 0.9rem;
+}
+
+@media (max-width: 576px) {
+    .participant-card .card-footer .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+</style>
 {% endblock %}

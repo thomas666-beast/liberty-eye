@@ -18,6 +18,7 @@ class Participant(models.Model):
     )
 
     # Basic information
+    number_id = models.CharField(max_length=150, unique=True, null=True)
     username = models.CharField(max_length=150, unique=True)
     password = models.CharField(max_length=128)  # Store hashed passwords
     nickname = models.CharField(max_length=50)
@@ -35,6 +36,8 @@ class Participant(models.Model):
 
     # Media
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+
+    description = models.TextField(blank=True, null=True)
 
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
